@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import axios from "axios";
 import debounce from "lodash.debounce";
 import SuggestionsList from "./SuggestionsList";
@@ -10,9 +10,9 @@ const SearchBar = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchSuggestions = async (input) => {
+  const fetchSuggestions = useCallback(async (input) => {
     if (!input) return;
-
+  
     setLoading(true);
     try {
       const response = await axios.get(WIKI_API_URL, {
@@ -25,15 +25,16 @@ const SearchBar = () => {
           origin: "*",
         },
       });
-
+  
       setSuggestions(response.data[1]);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     }
     setLoading(false);
-  };
-
-  const debouncedFetchSuggestions = useCallback(debounce(fetchSuggestions, 300), []);
+  }, []);
+  
+  const debouncedFetchSuggestions = useCallback(debounce(fetchSuggestions, 300), [fetchSuggestions]);
+  
 
   const handleInputChange = (e) => {
     setQuery(e.target.value);
